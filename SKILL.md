@@ -1,0 +1,65 @@
+---
+name: become-expert
+description: Builds grounded, working expertise in a field within the current session by researching authoritative current sources via web search, then continues the conversation as a well-oriented practitioner — landing with a brief conversational readout plus a reusable field-brief file that transfers the expertise to future chats. Use whenever the user asks Claude to "become an expert", "get up to speed on", "prime yourself on", "read up on", "ground yourself in", or "deeply understand" a topic, wants answers grounded in current sources rather than training data, wants expert-level help in a complex, specialized, or fast-moving domain (e.g. software engineering, system design) before starting real work, wants a grounded overseer to review or build their own designs, architecture, or prompts, or references a previously generated field brief. Not for teaching the user a subject, and not when a standalone research report is the end deliverable — the product is Claude's own grounded expertise plus the reusable brief.
+---
+
+# Become Expert
+
+Turn this chat into a working domain expert: research the current state of a field the way deep-research agents do, internalize it, land it conversationally, and externalize it into a **field brief** that anchors the rest of the session and is reusable in future ones.
+
+Why a protocol instead of ad-hoc searching: training data ages, and unplanned searching produces shallow, SEO-grade knowledge. This protocol guards against the recurring failure modes: searching with layman's terms because you never learned the field's vocabulary, trusting single sources, batching searches instead of letting each result steer the next, and letting findings evaporate when the session ends. One rule up front: do NOT adopt an "I am an expert" persona — studies suggest expert personas improve tone without improving, and sometimes hurting, factual accuracy. Expertise here comes from sources, not self-description.
+
+## Phase 0 — Scope
+
+Understand what the expertise is *for*, without gating research on it. If the user is present, ask 2–3 questions (use AskUserQuestion if available) — what they'll use the expertise for, what depth they need, which sub-areas matter most — and fire the Phase 1 mapping searches alongside the questions, since mapping doesn't depend on the answers and the answers get sharper once early results are visible. If the topic itself is ambiguous ("become an expert in transformers" — ML or electrical?), that's the one thing to resolve first. If the session is unattended or the context is already clear, state your assumptions and proceed.
+
+The intended application shapes the sub-questions. In particular, when the purpose is overseeing or reviewing the user's own design or architecture, weight the decomposition toward what a reviewer needs: production failure modes, the load-bearing tradeoffs, current best practices and their limits, and the boundaries where practice is contested rather than settled — not just how the technology works.
+
+Decompose the field into concrete sub-questions and note a rough search budget. **Default to a thorough run** — 4–7 sub-questions, ~8–15 searches, more for contested or fast-moving fields — because the typical invocation is a complex topic where a high degree of knowledge is the point, and a shallow pass that misses the field's real structure is worse than no pass. Scale down to a quick pass (1–2 sub-questions, ~3–6 searches) only when the user signals speed ("real quick", "just enough to...") or the question is genuinely narrow. Escalating mid-research is cheap; so is trimming — adjust as Phase 1 reveals how fast-moving or contested the field actually is.
+
+## Phase 1 — Map the field
+
+Run 3–5 **broad** searches with the WebSearch tool to learn the field's structure, not answers, and use the WebFetch tool to actually read the most promising results rather than trusting snippets:
+
+- Canonical primary sources: official docs, seminal papers/posts, recognized practitioners (who gets cited *by* others, rather than only citing others?)
+- The field's own vocabulary — the insider terms you'll need for Phase 2 queries (you can't search for a concept you don't have a name for yet)
+- Major schools of thought, live debates, and what changed recently (add the current year to queries where freshness matters)
+
+Prefer authoritative origins — journals, standards bodies, established practitioners — over SEO content farms and listicles. If web tools are unavailable or persistently failing, say so plainly and proceed with clearly-caveated training-data knowledge — never present ungrounded answers as researched.
+
+## Phase 2 — Deep-dive
+
+**Decision point: delegate or run inline?** If a `deep-research` skill is available AND the field is broad (4+ substantial sub-questions) or the user asked for thoroughness, delegate: invoke it with the refined sub-questions and Phase 1 vocabulary as the research question. Its multi-agent sweep will out-cover an inline loop; when it returns, treat its report as evidence to extract from, not as the deliverable. Delegation is a cost-and-visibility tradeoff, not a mandate: if the user wants to watch the research unfold, cost matters, or the inline budget already covers the field, running inline is a legitimate choice — state which you chose and why. Otherwise run the inline loop yourself.
+
+**The inline loop.** Work through sub-questions one at a time. After each source (or small wave of 2–3 related reads), note what you learned, what gap it exposed, and what that means the next queries should be — the gap chooses the next wave. What's forbidden is scripting the whole search list upfront so results can't steer it. Across the run, cover four kinds of material, because this mix is what separates expert grounding from a generic summary: recent syntheses (reviews, surveys — the map), the primary sources practitioners currently cite (credibility), expert commentary (the field's voice — what insiders emphasize and doubt), and live disagreements and open problems (search explicitly for critiques and "open challenges in X"). For engineering topics, the highest-value material is practitioner-grade: engineering blogs from teams operating at scale, postmortems, RFCs and design docs, and benchmark data — tutorial content teaches the happy path, but an overseer needs to know where things break.
+
+**The claims log.** Keep a running log of key claims, each with its source, and mark every important one **verified** (you actually read 2+ independent sources making it), **single-source**, or **contested**. A plausible claim attributed to a source you didn't read is single-source at best. Verification is a known weak link in research agents — the 2-source rule is load-bearing, not polish.
+
+**When a source contradicts what you think you know — the case that most tests grounding.** If well-supported sources (2+, authoritative) establish something you "know" to be false, they still win: log it **verified** and, separately, note that it runs against common belief. Do NOT dismiss it as wrong or incoherent, substitute your own knowledge for what the sources say, demote a claim your sources agree on to **contested** because it clashes with your prior, or upgrade a weak source because it matches what you expected. Your training is exactly what's most likely to be stale — that is why the sources are the authority. (Form: if the sources establish "X" and you believe "not-X," write "the sources establish X; this runs against common belief" — not "X is contested," not "not-X.")
+
+Stop a sub-question when new searches stop surfacing anything new. Before landing a thorough run, do a completeness pass: which sub-question is thinnest, and which load-bearing claim is still single-source? Spend the last few searches there — depth is measured by the weakest sub-question, not the average. Scale everything to the ask: a quick ask should cost minutes more than a direct answer, never a multiple of it, and a thorough run should stay near the Phase 0 budget — if you'll exceed it substantially, say so and why.
+
+## Phase 3 — Land it: readout + brief
+
+Two outputs, in this order.
+
+**The conversational readout.** Give the user a brief readout in chat — not a report; the goal is to continue the conversation. Write it in prose, the way a colleague who just read up on the field would talk: the current state and what changed recently (3–6 sentences), then the 2–3 live debates an insider would know, naming the specific people, labs, or papers on each side — "some argue X" is summary language, not expertise. Flag anything contested or single-source instead of smoothing it over. Close with a short linked source list and a hand-back ("Ready — what are we working on?"). Bullets are for the source list only; the readout itself is paragraphs, because expertise consists of relationships between ideas and that structure dies in bulleted fragments.
+
+**The field brief.** From the claims log (or the deep-research report), write the brief using `references/brief-template.md` — the full variant for normal/deep runs, the mini variant for quick ones. The brief must stand alone: pasting it into a fresh chat should transfer the expertise without redoing research. Save it as `field-brief-<topic-slug>.md`, send it to the user (SendUserFile if available), and tell them in one line that pasting it into a future chat skips Phases 0–2.
+
+## Phase 4 — Stay the practitioner
+
+For the rest of the session, ground answers in the researched sources and cite which source backs load-bearing claims. Say when something is contested or single-source. When a question falls outside what the research covered, say so and run a targeted follow-up search rather than improvising — then append what you learn to the brief. If the conversation shifts to a subtopic that deserves its own grounding, run a small supplementary pass without being asked. An expert's credibility comes as much from knowing the edges of their knowledge as from the knowledge itself.
+
+**Overseer mode.** When the user shares their own work for review — a design, architecture doc, code, or a prompt/agent configuration — act as the grounded overseer the research prepared you to be. Evaluate it against current practice, name the specific tradeoff each concern touches, and cite which source backs the concern. Keep two categories distinct: "this conflicts with documented practice (source)" versus "this is a judgment call where the field is split (name both sides)" — collapsing the second into the first is how reviewers lose trust. Where the design is sound, say so with the same specificity, and push back with sources rather than deferring to the user's existing choices. The same grounding applies generatively: when the user asks you to *build* the artifact — draft a prompt, sketch a design — build it from the researched current practice rather than generic patterns, noting which source backs each load-bearing choice.
+
+## If the user supplies an existing field brief
+
+Skip Phases 0–2. Read the brief, check its date (offer a refresh pass if the field moves fast and the brief is stale), and go straight to Phase 4.
+
+## Failure modes to avoid
+
+- **Persona without grounding** — expert tone from training data alone. The research pass is the point; skipping it defeats the skill.
+- **Report mode** — dumping a long document into chat instead of the prose readout + brief file. The user invoked this to *talk to* an expert.
+- **Snippet expertise** — citing sources you never opened. Fetch and read the top sources; the 2-source verification rule depends on it.
+- **Frozen expertise** — refusing to search again when the conversation moves past the initial pass, or ignoring a supplied brief's staleness.
