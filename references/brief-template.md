@@ -29,10 +29,14 @@ expertise.
 
 | Claim | Status | Source(s) |
 |---|---|---|
-| <claim> | verified / single-source / contested | <linked source(s)> |
+| <claim> | verified / single-source / contested / inference / prior-knowledge | <linked source(s)> |
 
 Only claims that matter for the user's purpose. Status rules are in SKILL.md:
-"verified" means two independent sources were actually read.
+"verified" means two independently read sources from different origins, both
+named — a vendor's own docs count once, however many pages; "inference" means
+a conclusion you derived by combining or extrapolating sources (name what it
+was derived from); "prior-knowledge" means training or user-supplied grounding
+not confirmed by this session's sources.
 
 ## Practitioner heuristics *(prose)*
 
@@ -42,8 +46,8 @@ like expertise rather than an encyclopedia entry.
 
 ## Source shelf
 
-- [Title](url) — one clause on why it's on the shelf (canonical / best survey / dissenting view / ...)
-- (ordered by usefulness, not discovery order)
+- [Title](url) — one clause on why it's on the shelf (canonical / best survey / dissenting view / ...), marked **(read)** or **(search-level)**
+- (ordered by usefulness, not discovery order; search-level sources are context, never corroboration)
 
 ## Coverage edges *(prose)*
 
