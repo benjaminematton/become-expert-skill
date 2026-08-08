@@ -72,7 +72,7 @@ Every run failed before the rule; every run passed after. The eval harness lives
 Copy the skill into your Claude config's skills directory (Claude Code shown; any surface that loads Agent Skills works):
 
 ```bash
-git clone https://github.com/bmatton/become-expert-skill.git
+git clone https://github.com/benjaminematton/become-expert-skill.git
 cp -R become-expert-skill ~/.claude/skills/become-expert
 ```
 
