@@ -58,14 +58,18 @@ The interesting engineering here is epistemic, not architectural:
 
 ## Evals
 
-The anti-prior rule wasn't added on intuition. In the `faithfulness-suite` eval, the agent researches a **counter-factual corpus** — sources deliberately constructed to invert a strong prior — and is scored on whether its answers follow the sources or the prior:
+The claim statuses and the anti-prior rule aren't intuition — they're the output of [`faithfulness-suite`](https://github.com/benjaminematton/faithfulness-suite), a Harbor benchmark that has the agent research **counter-factual corpora** (six-document corpora whose facts invert reality) and scores whether the resulting brief follows the sources or the model's priors. A calibrated verifier (oracle brief passes 3/3, priors-only brief fails 0/3) makes the measurement trustworthy.
 
-| Configuration | Sources-faithful runs |
+The suite caught a real failure: on the corpus targeting the strongest prior (muscle fiber types), the agent reverted to its training data — **0/5 runs faithful**. After the anti-prior rule was operationalized:
+
+| Arm | Result |
 |---|---|
-| Without the anti-prior rule | **0 / 5** |
-| With the rule operationalized | **5 / 5** |
+| Original failure (muscle-fiber-types, pre-rule) | 0/5 faithful |
+| With the rule | **5/5** |
+| Control: rule reverted, all else identical | 0/5 — the instruction, not a confound |
+| Held-out domain (seasons-axial-tilt): control vs. rule | 1/5 vs. **5/5** (Fisher p = 0.048) |
 
-Every run failed before the rule; every run passed after. The eval harness lives in a separate repo.
+The fix survived two independent controls, including a held-out domain it was never tuned on. Corpora, verifier, oracle briefs, and lab notes are all in the eval repo.
 
 ## Install
 
