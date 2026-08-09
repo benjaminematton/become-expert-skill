@@ -37,7 +37,7 @@ Three failure modes show up whenever an LLM is asked for expertise, and each one
 
 ```mermaid
 flowchart LR
-    P0["Phase 0\nScope"] --> P1["Phase 1\nMap the field"] --> P2["Phase 2\nDeep-dive"] --> P3["Phase 3\nReadout + brief"] --> P4["Phase 4\nStay the practitioner"]
+    P0["Phase 0<br/>Scope"] --> P1["Phase 1<br/>Map the field"] --> P2["Phase 2<br/>Deep-dive"] --> P3["Phase 3<br/>Readout + brief"] --> P4["Phase 4<br/>Stay the practitioner"]
 ```
 
 - **Scope** — establish what the expertise is *for*; decompose into 4–7 sub-questions with a search budget.
